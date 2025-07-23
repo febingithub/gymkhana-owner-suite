@@ -55,7 +55,7 @@ const Dashboard = () => {
       {/* Welcome section */}
       <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-6">
         <h1 className="text-2xl font-bold text-foreground mb-2">
-          Welcome back, {user?.username}!
+          Welcome back, {user?.name}!
         </h1>
         <p className="text-muted-foreground">
           Here's what's happening at {user?.gymName} today.

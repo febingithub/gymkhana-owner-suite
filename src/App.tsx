@@ -7,12 +7,14 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import MemberDashboard from "./pages/MemberDashboard";
 import GymProfile from "./pages/GymProfile";
 import MemberRequests from "./pages/MemberRequests";
 import Attendance from "./pages/Attendance";
 import Reviews from "./pages/Reviews";
 import Settings from "./pages/Settings";
 import DashboardLayout from "./components/DashboardLayout";
+import MemberLayout from "./components/MemberLayout";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,9 +30,9 @@ const App = () => (
             {/* Public routes */}
             <Route path="/login" element={<Login />} />
             
-            {/* Protected routes */}
+            {/* Gym Owner Protected routes */}
             <Route path="/dashboard" element={
-              <ProtectedRoute>
+              <ProtectedRoute userType="owner">
                 <DashboardLayout />
               </ProtectedRoute>
             }>
@@ -42,8 +44,17 @@ const App = () => (
               <Route path="settings" element={<Settings />} />
             </Route>
             
-            {/* Redirect root to dashboard */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            {/* Member Protected routes */}
+            <Route path="/member-dashboard" element={
+              <ProtectedRoute userType="member">
+                <MemberLayout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<MemberDashboard />} />
+            </Route>
+            
+            {/* Redirect root based on user type or to login */}
+            <Route path="/" element={<Navigate to="/login" replace />} />
             
             {/* 404 route */}
             <Route path="*" element={<NotFound />} />

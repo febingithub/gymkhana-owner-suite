@@ -1,21 +1,21 @@
 import React from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { 
   Home, 
   Building2, 
-  UserPlus, 
   Clock, 
   Star, 
-  Settings,
+  User,
   LogOut,
   Menu,
-  X
+  X,
+  Phone
 } from 'lucide-react';
 import { useState } from 'react';
 
-const DashboardLayout = () => {
+const MemberLayout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -26,12 +26,11 @@ const DashboardLayout = () => {
   };
 
   const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: Home },
-    { name: 'Gym Profile', href: '/dashboard/gym-profile', icon: Building2 },
-    { name: 'Member Requests', href: '/dashboard/member-requests', icon: UserPlus },
-    { name: 'Attendance', href: '/dashboard/attendance', icon: Clock },
-    { name: 'Reviews', href: '/dashboard/reviews', icon: Star },
-    { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+    { name: 'Dashboard', href: '/member-dashboard', icon: Home },
+    { name: 'My Gyms', href: '/member-dashboard/gyms', icon: Building2 },
+    { name: 'Attendance', href: '/member-dashboard/attendance', icon: Clock },
+    { name: 'Reviews', href: '/member-dashboard/reviews', icon: Star },
+    { name: 'Profile', href: '/member-dashboard/profile', icon: User },
   ];
 
   return (
@@ -70,21 +69,17 @@ const DashboardLayout = () => {
           {/* Navigation */}
           <nav className="flex-1 space-y-1 px-4 py-6">
             {navigation.map((item) => (
-              <NavLink
+              <button
                 key={item.name}
-                to={item.href}
-                className={({ isActive }) =>
-                  `group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
-                    isActive
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                  }`
-                }
-                onClick={() => setSidebarOpen(false)}
+                onClick={() => {
+                  navigate(item.href);
+                  setSidebarOpen(false);
+                }}
+                className="group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors w-full text-left text-muted-foreground hover:bg-muted hover:text-foreground"
               >
                 <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
                 {item.name}
-              </NavLink>
+              </button>
             ))}
           </nav>
 
@@ -92,7 +87,10 @@ const DashboardLayout = () => {
           <div className="border-t p-4">
             <div className="mb-4">
               <p className="text-sm font-medium text-foreground">{user?.name}</p>
-              <p className="text-xs text-muted-foreground">{user?.gymName}</p>
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <Phone className="h-3 w-3" />
+                {user?.phone}
+              </p>
             </div>
             <Button
               variant="outline"
@@ -127,7 +125,7 @@ const DashboardLayout = () => {
             
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground hidden sm:block">
-                {user?.gymName}
+                Member ID: {user?.membershipId}
               </span>
             </div>
           </div>
@@ -142,4 +140,4 @@ const DashboardLayout = () => {
   );
 };
 
-export default DashboardLayout;
+export default MemberLayout;
