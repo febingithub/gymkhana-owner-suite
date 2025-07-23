@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -45,6 +46,30 @@ const MemberDashboard = () => {
     { gym: 'PowerHouse Fitness', date: '2024-01-08', time: '18:00', duration: '1h 20m' },
   ];
 
+  const quickActions = [
+    {
+      title: 'My Gyms',
+      description: 'View and manage your gym memberships',
+      icon: Building2,
+      href: '/member-dashboard/my-gyms',
+      buttonText: 'View Gyms'
+    },
+    {
+      title: 'Check In',
+      description: 'Check in to your current location',
+      icon: MapPin,
+      href: '#',
+      buttonText: 'Check In'
+    },
+    {
+      title: 'Book a Class',
+      description: 'Schedule your next workout',
+      icon: Calendar,
+      href: '#',
+      buttonText: 'Book Now'
+    }
+  ];
+
   const stats = [
     {
       title: 'This Month',
@@ -86,6 +111,31 @@ const MemberDashboard = () => {
         <p className="text-muted-foreground">
           Ready for your next workout? Here's your fitness summary.
         </p>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {quickActions.map((action, index) => {
+          const Icon = action.icon;
+          return (
+            <Card key={index} className="hover:shadow-md transition-shadow">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="font-medium text-foreground">{action.title}</h3>
+                    <p className="text-sm text-muted-foreground">{action.description}</p>
+                  </div>
+                  <div className="p-2 rounded-full bg-primary/10">
+                    <Icon className="h-5 w-5 text-primary" />
+                  </div>
+                </div>
+                <Button variant="outline" size="sm" className="mt-4 w-full" asChild>
+                  <Link to={action.href}>{action.buttonText}</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Stats grid */}

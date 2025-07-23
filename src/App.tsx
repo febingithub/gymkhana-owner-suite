@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import MemberDashboard from "./pages/MemberDashboard";
 import GymProfile from "./pages/GymProfile";
+import MyGyms from "./pages/MyGyms";
 import MemberRequests from "./pages/MemberRequests";
 import Attendance from "./pages/Attendance";
 import Reviews from "./pages/Reviews";
@@ -51,6 +52,7 @@ const App = () => (
               </ProtectedRoute>
             }>
               <Route index element={<MemberDashboard />} />
+              <Route path="my-gyms" element={<MyGyms />} />
             </Route>
             
             {/* Redirect root based on user type or to login */}
