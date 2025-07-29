@@ -92,7 +92,7 @@ const DashboardLayout = () => {
           <div className="border-t p-4">
             <div className="mb-4">
               <p className="text-sm font-medium text-foreground">{user?.name}</p>
-              <p className="text-xs text-muted-foreground">{user?.gymName}</p>
+              <p className="text-xs text-muted-foreground">{user?.email}</p>
             </div>
             <Button
               variant="outline"
@@ -127,7 +127,7 @@ const DashboardLayout = () => {
             
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground hidden sm:block">
-                {user?.gymName}
+                {user?.email}
               </span>
             </div>
           </div>

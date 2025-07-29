@@ -58,7 +58,7 @@ const Dashboard = () => {
           Welcome back, {user?.name}!
         </h1>
         <p className="text-muted-foreground">
-          Here's what's happening at {user?.gymName} today.
+          Here's what's happening at your gym today.
         </p>
       </div>
 

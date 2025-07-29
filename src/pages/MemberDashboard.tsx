@@ -177,7 +177,7 @@ const MemberDashboard = () => {
               
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium text-muted-foreground">Member ID</span>
-                <span className="text-sm font-mono">{user?.membershipId}</span>
+                <span className="text-sm font-mono">{user?.id}</span>
               </div>
               
               <div className="flex justify-between items-center">

@@ -12,7 +12,7 @@ import { Loader2, Dumbbell, Building2, User, Phone, KeyRound } from 'lucide-reac
 type LoginType = 'owner' | 'member';
 
 const Login = () => {
-  const { user, loginOwner, loginMember, sendOTP, isLoading } = useAuth();
+  const { user, sendOTP, verifyOTP, isLoading } = useAuth();
   const { toast } = useToast();
   const [loginType, setLoginType] = useState<LoginType>('owner');
   
@@ -30,7 +30,7 @@ const Login = () => {
   // Redirect based on user type
   if (user) {
     const from = location.state?.from?.pathname || 
-      (user.userType === 'owner' ? '/dashboard' : '/member-dashboard');
+      (user.role === 'OWNER' ? '/dashboard' : '/member-dashboard');
     return <Navigate to={from} replace />;
   }
 
@@ -46,14 +46,27 @@ const Login = () => {
       return;
     }
 
-    const success = await loginOwner(username, password);
+    // For owner login, use phone number in a special format to distinguish from members
+    const ownerPhone = `+owner${username}`;
     
-    if (success) {
-      toast({
-        title: 'Welcome!',
-        description: 'Successfully logged in to Gymkhana',
-      });
-    } else {
+    try {
+      // Send OTP for owner
+      const otpSent = await sendOTP(ownerPhone, 'LOGIN');
+      if (otpSent) {
+        setOtpSent(true);
+        setPhone(ownerPhone);
+        toast({
+          title: 'OTP Sent',
+          description: 'Please check your phone for the verification code. Use 123456 for demo.',
+        });
+      } else {
+        toast({
+          title: 'Login Failed',
+          description: 'Failed to send OTP',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
       toast({
         title: 'Login Failed',
         description: 'Invalid credentials. Please try again.',
@@ -103,7 +116,7 @@ const Login = () => {
       return;
     }
 
-    const success = await loginMember(phone, otp);
+    const success = await verifyOTP(phone, otp);
     
     if (success) {
       toast({

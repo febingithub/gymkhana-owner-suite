@@ -1,28 +1,26 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { apiService } from '@/services/api';
 
-type UserType = 'owner' | 'member';
+type UserType = 'OWNER' | 'MEMBER';
 
 interface User {
-  id: string;
+  id: number;
   name: string;
   email?: string;
-  phone?: string;
-  userType: UserType;
-  // Owner specific
-  username?: string;
-  gymName?: string;
-  // Member specific
-  membershipId?: string;
-  approvedGyms?: string[];
+  phone: string;
+  role: UserType;
+  isVerified: boolean;
+  createdAt: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  loginOwner: (username: string, password: string) => Promise<boolean>;
-  loginMember: (phone: string, otp: string) => Promise<boolean>;
-  sendOTP: (phone: string) => Promise<boolean>;
+  token: string | null;
+  sendOTP: (phone: string, type?: 'LOGIN' | 'SIGNUP' | 'RESET') => Promise<boolean>;
+  verifyOTP: (phone: string, otp: string) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
+  isAuthenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -41,79 +39,84 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const loginOwner = async (username: string, password: string): Promise<boolean> => {
+  useEffect(() => {
+    // Check for stored auth token on app start
+    const storedToken = localStorage.getItem('authToken');
+    if (storedToken) {
+      setToken(storedToken);
+      loadUserProfile();
+    }
+  }, []);
+
+  const loadUserProfile = async () => {
+    try {
+      const response = await apiService.getProfile();
+      if (response.success && response.data) {
+        setUser(response.data);
+      }
+    } catch (error) {
+      // If profile loading fails, clear stored token
+      localStorage.removeItem('authToken');
+      setToken(null);
+    }
+  };
+
+  const sendOTP = async (phone: string, type: 'LOGIN' | 'SIGNUP' | 'RESET' = 'LOGIN'): Promise<boolean> => {
     setIsLoading(true);
     
-    // Mock API call for owner login
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    if (username && password) {
-      const mockUser: User = {
-        id: '1',
-        name: username,
-        username: username,
-        gymName: 'PowerHouse Fitness',
-        email: `${username}@gym.com`,
-        userType: 'owner'
-      };
-      setUser(mockUser);
+    try {
+      const response = await apiService.sendOTP(phone, type);
       setIsLoading(false);
-      return true;
+      return response.success;
+    } catch (error) {
+      setIsLoading(false);
+      return false;
+    }
+  };
+
+  const verifyOTP = async (phone: string, otp: string): Promise<boolean> => {
+    setIsLoading(true);
+    
+    try {
+      const response = await apiService.verifyOTP(phone, otp);
+      if (response.success && response.data) {
+        setToken(response.data.token);
+        setUser(response.data.user);
+        localStorage.setItem('authToken', response.data.token);
+        setIsLoading(false);
+        return true;
+      }
+    } catch (error) {
+      console.error('OTP verification failed:', error);
     }
     
     setIsLoading(false);
     return false;
   };
 
-  const sendOTP = async (phone: string): Promise<boolean> => {
-    setIsLoading(true);
-    
-    // Mock API call to send OTP
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    setIsLoading(false);
-    // Always return true for demo (any phone number works)
-    return phone.length >= 10;
-  };
-
-  const loginMember = async (phone: string, otp: string): Promise<boolean> => {
-    setIsLoading(true);
-    
-    // Mock API call for member login
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    if (phone && otp === '123456') { // Mock OTP verification
-      const mockUser: User = {
-        id: '2',
-        name: 'John Doe',
-        phone: phone,
-        email: 'john.doe@email.com',
-        userType: 'member',
-        membershipId: 'M001',
-        approvedGyms: ['PowerHouse Fitness', 'Elite Gym']
-      };
-      setUser(mockUser);
-      setIsLoading(false);
-      return true;
+  const logout = async () => {
+    try {
+      await apiService.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setUser(null);
+      setToken(null);
+      localStorage.removeItem('authToken');
     }
-    
-    setIsLoading(false);
-    return false;
-  };
-
-  const logout = () => {
-    setUser(null);
   };
 
   const value = {
     user,
-    loginOwner,
-    loginMember,
+    token,
     sendOTP,
+    verifyOTP,
     logout,
-    isLoading
+    isLoading,
+    isAuthenticated: !!user && !!token
   };
 
   return (

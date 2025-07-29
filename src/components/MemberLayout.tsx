@@ -29,6 +29,7 @@ const MemberLayout = () => {
   const navigation = [
     { name: 'Dashboard', href: '/member-dashboard', icon: Home },
     { name: 'My Gyms', href: '/member-dashboard/my-gyms', icon: Building2 },
+    { name: 'Memberships', href: '/member-dashboard/membership', icon: Building2 },
     { name: 'Attendance', href: '/member-dashboard/attendance', icon: Clock },
     { name: 'Reviews', href: '/member-dashboard/reviews', icon: Star },
     { name: 'Profile', href: '/member-dashboard/profile', icon: User },
@@ -131,7 +132,7 @@ const MemberLayout = () => {
             
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground hidden sm:inline-block">
-                Member ID: {user?.membershipId}
+                Member ID: {user?.id}
               </span>
             </div>
           </div>
