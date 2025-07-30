@@ -15,6 +15,7 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
+  setUser: (user: User | null) => void;
   token: string | null;
   sendOTP: (phone: string, type?: 'LOGIN' | 'SIGNUP' | 'RESET') => Promise<boolean>;
   verifyOTP: (phone: string, otp: string) => Promise<boolean>;
@@ -111,6 +112,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const value = {
     user,
+    setUser,
     token,
     sendOTP,
     verifyOTP,

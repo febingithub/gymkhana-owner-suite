@@ -100,6 +100,51 @@ class ApiService {
       }
     }
 
+    if (endpoint === '/signup/send-otp' && method === 'POST') {
+      // Simulate checking if phone is already registered
+      if (body.phone === '1234567890') {
+        throw new Error('Phone already registered');
+      }
+      
+      return {
+        success: true,
+        message: 'OTP sent successfully',
+        data: {
+          phone: body.phone,
+          name: body.name,
+          expiresIn: 300
+        } as T
+      };
+    }
+
+    if (endpoint === '/signup/verify-otp' && method === 'POST') {
+      if (body.otp === '123456' || body.otp === '1234') {
+        const mockUser = {
+          id: Math.floor(Math.random() * 1000),
+          phone: body.phone,
+          email: `${body.phone}@gym.com`,
+          name: 'New Member',
+          role: 'MEMBER',
+          isVerified: true,
+          createdAt: new Date().toISOString()
+        };
+
+        const token = `mock_jwt_token_${mockUser.id}_${Date.now()}`;
+        localStorage.setItem('authToken', token);
+
+        return {
+          success: true,
+          message: 'Signup successful',
+          data: {
+            token,
+            user: mockUser
+          } as T
+        };
+      } else {
+        throw new Error('Invalid OTP');
+      }
+    }
+
     if (endpoint === '/auth/signup-member' && method === 'POST') {
       return {
         success: true,
@@ -376,6 +421,23 @@ class ApiService {
     return this.makeRequest<any>('/auth/signup-owner', {
       method: 'POST',
       body: JSON.stringify(ownerData),
+      includeAuth: false
+    });
+  }
+
+  // Two-step signup methods
+  async sendSignupOTP(userData: {name: string, phone: string}) {
+    return this.makeRequest<any>('/signup/send-otp', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+      includeAuth: false
+    });
+  }
+
+  async verifySignupOTP(otpData: {phone: string, otp: string}) {
+    return this.makeRequest<any>('/signup/verify-otp', {
+      method: 'POST',
+      body: JSON.stringify(otpData),
       includeAuth: false
     });
   }

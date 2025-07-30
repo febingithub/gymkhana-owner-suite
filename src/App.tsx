@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import OTPSignup from "./pages/OTPSignup";
 import Dashboard from "./pages/Dashboard";
 import MemberDashboard from "./pages/MemberDashboard";
 import GymProfile from "./pages/GymProfile";
@@ -33,6 +34,7 @@ const App = () => (
             {/* Public routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/otp-signup" element={<OTPSignup />} />
             
             {/* Gym Owner Protected routes */}
             <Route path="/dashboard" element={
