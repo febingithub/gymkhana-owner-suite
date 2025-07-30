@@ -100,6 +100,38 @@ class ApiService {
       }
     }
 
+    if (endpoint === '/auth/signup-member' && method === 'POST') {
+      return {
+        success: true,
+        message: 'Member registered successfully',
+        data: {
+          id: Math.floor(Math.random() * 1000),
+          phone: body.phone,
+          email: body.email,
+          name: body.name,
+          role: 'MEMBER',
+          isVerified: false,
+          createdAt: new Date().toISOString()
+        } as T
+      };
+    }
+
+    if (endpoint === '/auth/signup-owner' && method === 'POST') {
+      return {
+        success: true,
+        message: 'Owner registered successfully',
+        data: {
+          id: Math.floor(Math.random() * 1000),
+          phone: body.phone,
+          email: body.email,
+          name: body.name,
+          role: 'OWNER',
+          isVerified: false,
+          createdAt: new Date().toISOString()
+        } as T
+      };
+    }
+
     if (endpoint === '/auth/profile' && method === 'GET') {
       const token = localStorage.getItem('authToken');
       if (!token) throw new Error('Unauthorized');
@@ -330,6 +362,22 @@ class ApiService {
     const result = await this.makeRequest<{}>('/auth/logout', { method: 'POST' });
     localStorage.removeItem('authToken');
     return result;
+  }
+
+  async signupMember(memberData: {phone: string, email: string, name: string}) {
+    return this.makeRequest<any>('/auth/signup-member', {
+      method: 'POST',
+      body: JSON.stringify(memberData),
+      includeAuth: false
+    });
+  }
+
+  async signupOwner(ownerData: {phone: string, email: string, name: string}) {
+    return this.makeRequest<any>('/auth/signup-owner', {
+      method: 'POST',
+      body: JSON.stringify(ownerData),
+      includeAuth: false
+    });
   }
 
   // Gym methods

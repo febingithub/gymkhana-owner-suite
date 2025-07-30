@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -213,6 +213,12 @@ const Login = () => {
                   <p className="text-sm text-muted-foreground">
                     Demo: Use any username and password to login
                   </p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Don't have an account?{' '}
+                    <Link to="/signup" className="text-primary hover:underline">
+                      Sign up here
+                    </Link>
+                  </p>
                 </div>
               </CardContent>
             </TabsContent>
@@ -329,6 +335,12 @@ const Login = () => {
                       ? 'Demo: Use any phone number to receive OTP'
                       : 'Demo: Use OTP code 123456 to login'
                     }
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Don't have an account?{' '}
+                    <Link to="/signup" className="text-primary hover:underline">
+                      Sign up here
+                    </Link>
                   </p>
                 </div>
               </CardContent>
