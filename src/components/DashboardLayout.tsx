@@ -36,7 +36,7 @@ const DashboardLayout = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-background flex">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
@@ -46,9 +46,9 @@ const DashboardLayout = () => {
       )}
 
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-card shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-card shadow-lg transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 lg:inset-0 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}>
+      }`} style={{ scrollbarWidth: 'none' }}>
         <div className="flex h-full flex-col">
           {/* Logo and close button */}
           <div className="flex h-16 shrink-0 items-center justify-between px-6 border-b">
@@ -108,10 +108,10 @@ const DashboardLayout = () => {
         </div>
       </div>
 
-      {/* Main content */}
-      <div className="lg:pl-64">
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar */}
-        <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b bg-card px-4 shadow-sm">
+        <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b bg-card px-6 shadow-sm">
           <Button
             variant="ghost"
             size="sm"
@@ -135,8 +135,10 @@ const DashboardLayout = () => {
         </div>
 
         {/* Page content */}
-        <main className="p-6">
-          <Outlet />
+        <main className="flex-1 overflow-y-auto bg-background">
+          <div className="p-6 mx-auto w-full max-w-7xl">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>
