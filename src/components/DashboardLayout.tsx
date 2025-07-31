@@ -28,6 +28,7 @@ const DashboardLayout = () => {
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: Home },
     { name: 'Gym Profile', href: '/dashboard/gym-profile', icon: Building2 },
+    { name: 'Add Member', href: '/dashboard/add-member', icon: UserPlus },
     { name: 'Member Requests', href: '/dashboard/member-requests', icon: UserPlus },
     { name: 'Attendance', href: '/dashboard/attendance', icon: Clock },
     { name: 'Reviews', href: '/dashboard/reviews', icon: Star },

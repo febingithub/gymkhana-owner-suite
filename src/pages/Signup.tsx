@@ -275,7 +275,7 @@ const Signup = () => {
             <TabsList className="grid w-full grid-cols-2 mb-6">
               <TabsTrigger value="member" className="flex items-center gap-2">
                 <User className="h-4 w-4" />
-                Gym Member
+                Customer
               </TabsTrigger>
               <TabsTrigger value="admin" className="flex items-center gap-2">
                 <Building2 className="h-4 w-4" />
@@ -285,130 +285,27 @@ const Signup = () => {
 
             <TabsContent value="member">
               <CardHeader className="space-y-1">
-                <CardTitle className="text-2xl font-semibold text-center">Member Sign Up</CardTitle>
+                <CardTitle className="text-2xl font-semibold text-center">Customer Sign Up</CardTitle>
                 <CardDescription className="text-center">
-                  Join gyms and manage your fitness journey
+                  Join gyms and manage your fitness journey using OTP verification
                 </CardDescription>
               </CardHeader>
               
-              <CardContent>
-                <form onSubmit={handleMemberSignup} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="member-name">Full Name *</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="member-name"
-                        type="text"
-                        placeholder="Enter your full name"
-                        value={memberData.name}
-                        onChange={(e) => setMemberData(prev => ({ ...prev, name: e.target.value }))}
-                        disabled={isLoading}
-                        className="h-11 pl-10"
-                        required
-                      />
-                    </div>
+              <CardContent className="text-center py-8">
+                <div className="space-y-4">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full mx-auto flex items-center justify-center">
+                    <User className="w-8 h-8 text-primary" />
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="member-email">Email Address *</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="member-email"
-                        type="email"
-                        placeholder="Enter your email"
-                        value={memberData.email}
-                        onChange={(e) => setMemberData(prev => ({ ...prev, email: e.target.value }))}
-                        disabled={isLoading}
-                        className="h-11 pl-10"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="member-phone">Phone Number *</Label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="member-phone"
-                        type="tel"
-                        placeholder="Enter your phone number"
-                        value={memberData.phone}
-                        onChange={(e) => setMemberData(prev => ({ ...prev, phone: e.target.value }))}
-                        disabled={isLoading}
-                        className="h-11 pl-10"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="member-gym-code">Gym Code (Optional)</Label>
-                    <div className="relative">
-                      <Building className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="member-gym-code"
-                        type="text"
-                        placeholder="Enter gym code if joining existing gym"
-                        value={memberData.gymCode}
-                        onChange={(e) => setMemberData(prev => ({ ...prev, gymCode: e.target.value }))}
-                        disabled={isLoading}
-                        className="h-11 pl-10"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="member-password">Password *</Label>
-                    <div className="relative">
-                      <KeyRound className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="member-password"
-                        type="password"
-                        placeholder="Create a password (min 6 chars)"
-                        value={memberData.password}
-                        onChange={(e) => setMemberData(prev => ({ ...prev, password: e.target.value }))}
-                        disabled={isLoading}
-                        className="h-11 pl-10"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="member-confirm-password">Confirm Password *</Label>
-                    <div className="relative">
-                      <KeyRound className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="member-confirm-password"
-                        type="password"
-                        placeholder="Confirm your password"
-                        value={memberData.confirmPassword}
-                        onChange={(e) => setMemberData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                        disabled={isLoading}
-                        className="h-11 pl-10"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <Button 
-                    type="submit" 
-                    className="w-full h-11 mt-6" 
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Creating Account...
-                      </>
-                    ) : (
-                      'Create Member Account'
-                    )}
-                  </Button>
-                </form>
+                  <h3 className="text-lg font-medium">Use OTP Signup</h3>
+                  <p className="text-muted-foreground text-sm">
+                    For a secure and quick registration process, please use our OTP-based signup.
+                  </p>
+                  <Link to="/otp-signup">
+                    <Button className="mt-4">
+                      Continue with OTP Signup
+                    </Button>
+                  </Link>
+                </div>
 
                 <div className="mt-6 pt-6 border-t text-center">
                   <p className="text-sm text-muted-foreground">

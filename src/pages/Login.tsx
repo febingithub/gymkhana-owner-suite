@@ -55,6 +55,7 @@ const Login = () => {
       if (otpSent) {
         setOtpSent(true);
         setPhone(ownerPhone);
+        setLoginType('member'); // Switch to OTP verification view
         toast({
           title: 'OTP Sent',
           description: 'Please check your phone for the verification code. Use 123456 for demo.',
