@@ -31,12 +31,6 @@ const OTPSignup = () => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Redirect if already logged in
-  if (user) {
-    const redirectTo = user.role === 'OWNER' ? '/dashboard' : '/member-dashboard';
-    return <Navigate to={redirectTo} replace />;
-  }
-
   // Resend cooldown timer
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -52,6 +46,12 @@ const OTPSignup = () => {
       otpRefs.current[0]?.focus();
     }
   }, [step]);
+
+  // Redirect if already logged in
+  if (user) {
+    const redirectTo = user.role === 'OWNER' ? '/dashboard' : '/member-dashboard';
+    return <Navigate to={redirectTo} replace />;
+  }
 
   const validatePhone = (phone: string) => {
     const phoneRegex = /^[0-9]{10}$/;
