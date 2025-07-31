@@ -17,7 +17,7 @@ const Login = () => {
   const [loginType, setLoginType] = useState<LoginType>('owner');
   
   // Owner login state
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   
   // Member login state
@@ -37,7 +37,7 @@ const Login = () => {
   const handleOwnerLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!username || !password) {
+    if (!email || !password) {
       toast({
         title: 'Error',
         description: 'Please fill in all fields',
@@ -46,24 +46,31 @@ const Login = () => {
       return;
     }
 
-    // For owner login, use phone number in a special format to distinguish from members
-    const ownerPhone = `+owner${username}`;
-    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast({
+        title: 'Error',
+        description: 'Please enter a valid email address',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
-      // Send OTP for owner
-      const otpSent = await sendOTP(ownerPhone, 'LOGIN');
-      if (otpSent) {
-        setOtpSent(true);
-        setPhone(ownerPhone);
-        // Keep in owner tab, don't switch to member tab
+      // For demo purposes, use a special phone format to simulate owner login
+      const ownerPhone = `+owner${email.replace('@', '')}`;
+      const success = await verifyOTP(ownerPhone, '123456'); // Use fixed OTP for demo
+      
+      if (success) {
         toast({
-          title: 'OTP Sent',
-          description: 'Please check your phone for the verification code. Use 123456 for demo.',
+          title: 'Welcome!',
+          description: 'Successfully logged in to your owner account',
         });
       } else {
         toast({
           title: 'Login Failed',
-          description: 'Failed to send OTP',
+          description: 'Invalid credentials. Please check your email and password.',
           variant: 'destructive',
         });
       }
@@ -195,116 +202,54 @@ const Login = () => {
               </CardHeader>
               
               <CardContent>
-                {(!otpSent || (loginType === 'owner' && !otpSent)) ? (
-                  <form onSubmit={handleOwnerLogin} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="username">Username</Label>
-                      <Input
-                        id="username"
-                        type="text"
-                        placeholder="Enter your username"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        disabled={isLoading}
-                        className="h-11"
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="password">Password</Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        placeholder="Enter your password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        disabled={isLoading}
-                        className="h-11"
-                      />
-                    </div>
-
-                    <Button 
-                      type="submit" 
-                      className="w-full h-11 mt-6" 
+                <form onSubmit={handleOwnerLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email Address</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="Enter your email address"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Signing in...
-                        </>
-                      ) : (
-                        'Sign In'
-                      )}
-                    </Button>
-                  </form>
-                ) : (
-                  <form onSubmit={handleVerifyOwnerOTP} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="owner-phone-display">Account</Label>
-                      <Input
-                        id="owner-phone-display"
-                        type="text"
-                        value={username}
-                        disabled
-                        className="h-11 bg-muted"
-                      />
-                    </div>
+                      className="h-11"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      disabled={isLoading}
+                      className="h-11"
+                      required
+                    />
+                  </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="owner-otp">Verification Code</Label>
-                      <div className="relative">
-                        <KeyRound className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="owner-otp"
-                          type="text"
-                          placeholder="Enter 6-digit OTP"
-                          value={otp}
-                          onChange={(e) => setOtp(e.target.value)}
-                          disabled={isLoading}
-                          maxLength={6}
-                          className="h-11 pl-10"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => {
-                          setOtpSent(false);
-                          setOtp('');
-                        }}
-                        disabled={isLoading}
-                        className="flex-1"
-                      >
-                        Back to Login
-                      </Button>
-                      <Button 
-                        type="submit" 
-                        className="flex-1 h-11" 
-                        disabled={isLoading}
-                      >
-                        {isLoading ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Verifying...
-                          </>
-                        ) : (
-                          'Verify & Login'
-                        )}
-                      </Button>
-                    </div>
-                  </form>
-                )}
+                  <Button 
+                    type="submit" 
+                    className="w-full h-11 mt-6" 
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Signing in...
+                      </>
+                    ) : (
+                      'Sign In'
+                    )}
+                  </Button>
+                </form>
 
                 <div className="mt-6 pt-6 border-t text-center">
                   <p className="text-sm text-muted-foreground">
-                    {(!otpSent || (loginType === 'owner' && !otpSent))
-                      ? 'Demo: Use any username and password to login'
-                      : 'Demo: Use OTP code 123456 to login'
-                    }
+                    Demo: Use any valid email and password to login
                   </p>
                   <p className="text-sm text-muted-foreground mt-2">
                     Don't have an account?{' '}
