@@ -66,7 +66,7 @@ const trainerFormSchema = z.object({
 type TrainerFormValues = z.infer<typeof trainerFormSchema>;
 
 interface TrainerFormProps {
-  defaultValues?: Partial<TrainerFormData>;
+  defaultValues?: Partial<TrainerFormData & { id?: string }>;
   onSubmit: (data: TrainerFormData) => Promise<void>;
   isSubmitting: boolean;
 }
@@ -188,21 +188,31 @@ export function TrainerForm({ defaultValues, onSubmit, isSubmitting }: TrainerFo
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="firstName">First Name *</Label>
-              <Input
-                id="firstName"
-                {...register('firstName')}
-                placeholder="John"
-                error={errors.firstName?.message}
-              />
+                <Input
+                  id="firstName"
+                  {...register('firstName')}
+                  placeholder="John"
+                  className={errors.firstName ? 'border-destructive' : ''}
+                />
+                {errors.firstName && (
+                  <p className="text-sm text-destructive mt-1">
+                    {errors.firstName.message}
+                  </p>
+                )}
             </div>
             <div>
               <Label htmlFor="lastName">Last Name *</Label>
-              <Input
-                id="lastName"
-                {...register('lastName')}
-                placeholder="Doe"
-                error={errors.lastName?.message}
-              />
+                <Input
+                  id="lastName"
+                  {...register('lastName')}
+                  placeholder="Doe"
+                  className={errors.lastName ? 'border-destructive' : ''}
+                />
+                {errors.lastName && (
+                  <p className="text-sm text-destructive mt-1">
+                    {errors.lastName.message}
+                  </p>
+                )}
             </div>
             <div>
               <Label htmlFor="dateOfBirth">Date of Birth *</Label>
@@ -272,23 +282,33 @@ export function TrainerForm({ defaultValues, onSubmit, isSubmitting }: TrainerFo
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="phone">Phone Number *</Label>
-              <Input
-                id="phone"
-                type="tel"
-                {...register('phone')}
-                placeholder="+91 98765 43210"
-                error={errors.phone?.message}
-              />
+                <Input
+                  id="phone"
+                  type="tel"
+                  {...register('phone')}
+                  placeholder="+91 98765 43210"
+                  className={errors.phone ? 'border-destructive' : ''}
+                />
+                {errors.phone && (
+                  <p className="text-sm text-destructive mt-1">
+                    {errors.phone.message}
+                  </p>
+                )}
             </div>
             <div>
               <Label htmlFor="email">Email Address</Label>
-              <Input
-                id="email"
-                type="email"
-                {...register('email')}
-                placeholder="john.doe@example.com"
-                error={errors.email?.message}
-              />
+                <Input
+                  id="email"
+                  type="email"
+                  {...register('email')}
+                  placeholder="john.doe@example.com"
+                  className={errors.email ? 'border-destructive' : ''}
+                />
+                {errors.email && (
+                  <p className="text-sm text-destructive mt-1">
+                    {errors.email.message}
+                  </p>
+                )}
             </div>
           </div>
         </div>
@@ -326,14 +346,19 @@ export function TrainerForm({ defaultValues, onSubmit, isSubmitting }: TrainerFo
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="yearsOfExperience">Years of Experience</Label>
-              <Input
-                id="yearsOfExperience"
-                type="number"
-                min="0"
-                {...register('yearsOfExperience', { valueAsNumber: true })}
-                placeholder="5"
-                error={errors.yearsOfExperience?.message}
-              />
+                <Input
+                  id="yearsOfExperience"
+                  type="number"
+                  min="0"
+                  {...register('yearsOfExperience', { valueAsNumber: true })}
+                  placeholder="5"
+                  className={errors.yearsOfExperience ? 'border-destructive' : ''}
+                />
+                {errors.yearsOfExperience && (
+                  <p className="text-sm text-destructive mt-1">
+                    {errors.yearsOfExperience.message}
+                  </p>
+                )}
             </div>
           </div>
         </div>
@@ -389,31 +414,46 @@ export function TrainerForm({ defaultValues, onSubmit, isSubmitting }: TrainerFo
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <Label htmlFor="emergencyContact.name">Name *</Label>
-              <Input
-                id="emergencyContact.name"
-                {...register('emergencyContact.name')}
-                placeholder="Jane Smith"
-                error={errors.emergencyContact?.name?.message}
-              />
+                <Input
+                  id="emergencyContact.name"
+                  {...register('emergencyContact.name')}
+                  placeholder="Jane Smith"
+                  className={errors.emergencyContact?.name ? 'border-destructive' : ''}
+                />
+                {errors.emergencyContact?.name && (
+                  <p className="text-sm text-destructive mt-1">
+                    {errors.emergencyContact.name.message}
+                  </p>
+                )}
             </div>
             <div>
               <Label htmlFor="emergencyContact.phone">Phone *</Label>
-              <Input
-                id="emergencyContact.phone"
-                type="tel"
-                {...register('emergencyContact.phone')}
-                placeholder="+91 98765 43210"
-                error={errors.emergencyContact?.phone?.message}
-              />
+                <Input
+                  id="emergencyContact.phone"
+                  type="tel"
+                  {...register('emergencyContact.phone')}
+                  placeholder="+91 98765 43210"
+                  className={errors.emergencyContact?.phone ? 'border-destructive' : ''}
+                />
+                {errors.emergencyContact?.phone && (
+                  <p className="text-sm text-destructive mt-1">
+                    {errors.emergencyContact.phone.message}
+                  </p>
+                )}
             </div>
             <div>
               <Label htmlFor="emergencyContact.relation">Relation *</Label>
-              <Input
-                id="emergencyContact.relation"
-                {...register('emergencyContact.relation')}
-                placeholder="Spouse"
-                error={errors.emergencyContact?.relation?.message}
-              />
+                <Input
+                  id="emergencyContact.relation"
+                  {...register('emergencyContact.relation')}
+                  placeholder="Spouse"
+                  className={errors.emergencyContact?.relation ? 'border-destructive' : ''}
+                />
+                {errors.emergencyContact?.relation && (
+                  <p className="text-sm text-destructive mt-1">
+                    {errors.emergencyContact.relation.message}
+                  </p>
+                )}
             </div>
           </div>
         </div>
@@ -494,8 +534,13 @@ export function TrainerForm({ defaultValues, onSubmit, isSubmitting }: TrainerFo
                         type="password"
                         {...register('password')}
                         placeholder="Create a password"
-                        error={errors.password?.message}
+                        className={errors.password ? 'border-destructive' : ''}
                       />
+                      {errors.password && (
+                        <p className="text-sm text-destructive mt-1">
+                          {errors.password.message}
+                        </p>
+                      )}
                       <Button
                         type="button"
                         variant="outline"
@@ -517,8 +562,13 @@ export function TrainerForm({ defaultValues, onSubmit, isSubmitting }: TrainerFo
                         type="password"
                         {...register('confirmPassword')}
                         placeholder="Confirm password"
-                        error={errors.confirmPassword?.message}
+                        className={errors.confirmPassword ? 'border-destructive' : ''}
                       />
+                      {errors.confirmPassword && (
+                        <p className="text-sm text-destructive mt-1">
+                          {errors.confirmPassword.message}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
