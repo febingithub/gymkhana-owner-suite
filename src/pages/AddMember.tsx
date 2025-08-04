@@ -173,6 +173,15 @@ const AddMember = () => {
                 )}
               </div>
               <div className="flex items-center space-x-4">
+                <Button 
+                  variant="outline" 
+                  type="button" 
+                  onClick={() => navigate('/dashboard/members')}
+                  className="gap-2"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Cancel
+                </Button>
                 <Button variant="outline" type="button" onClick={() => window.print()}>
                   Print Profile
                 </Button>
