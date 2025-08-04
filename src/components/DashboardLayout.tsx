@@ -11,7 +11,9 @@ import {
   Settings,
   LogOut,
   Menu,
-  X
+  X,
+  Users,
+  Receipt
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -30,6 +32,8 @@ const DashboardLayout = () => {
     { name: 'Gym Profile', href: '/dashboard/gym-profile', icon: Building2 },
     { name: 'Add Member', href: '/dashboard/add-member', icon: UserPlus },
     { name: 'Member Requests', href: '/dashboard/member-requests', icon: UserPlus },
+    { name: 'Trainers', href: '/dashboard/trainers', icon: Users },
+    { name: 'Expenses', href: '/dashboard/expenses', icon: Receipt },
     { name: 'Attendance', href: '/dashboard/attendance', icon: Clock },
     { name: 'Reviews', href: '/dashboard/reviews', icon: Star },
     { name: 'Settings', href: '/dashboard/settings', icon: Settings },

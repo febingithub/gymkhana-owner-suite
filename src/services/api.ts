@@ -1,4 +1,10 @@
-const API_BASE_URL = 'https://api.gymkhana.com/api/v1';
+import type { Trainer, TrainerFormData } from '@/types';
+
+// For local development, use a relative path or your local API URL
+const API_BASE_URL = '/api/v1';
+
+// For production, you might want to use an environment variable
+// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 
 interface ApiResponse<T> {
   success: boolean;
@@ -28,30 +34,91 @@ class ApiService {
 
   private async makeRequest<T>(
     endpoint: string, 
-    options: RequestInit & { includeAuth?: boolean } = {}
+    options: RequestInit & { 
+      includeAuth?: boolean;
+      params?: Record<string, any>;
+    } = {}
   ): Promise<ApiResponse<T>> {
+    // Use mock API in development
+    if (process.env.NODE_ENV === 'development') {
+      return this.simulateApiCall<T>(endpoint, options, options.params);
+    }
+
     try {
       const includeAuth = options.includeAuth !== false;
-      const { includeAuth: _, ...fetchOptions } = options;
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        ...fetchOptions,
-        headers: { ...this.getHeaders(includeAuth), ...fetchOptions.headers }
-      });
-
-      const data = await response.json();
+      const { includeAuth: _, params, ...fetchOptions } = options;
       
-      if (!response.ok) {
-        throw new Error(data.message || 'Request failed');
+      // Build URL with query parameters
+      const url = new URL(`${API_BASE_URL}${endpoint}`, window.location.origin);
+      if (params) {
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) {
+            url.searchParams.append(key, String(value));
+          }
+        });
+      }
+      
+      // Don't set Content-Type for FormData, let the browser set it with the correct boundary
+      const headers = { ...this.getHeaders(includeAuth) };
+      if (!(fetchOptions.body instanceof FormData)) {
+        headers['Content-Type'] = 'application/json';
       }
 
-      return data;
+      const response = await fetch(url.toString(), {
+        ...fetchOptions,
+        headers: {
+          ...headers,
+          ...(fetchOptions.headers || {}),
+        },
+        // Only stringify the body if it's not FormData
+        body: fetchOptions.body && !(fetchOptions.body instanceof FormData)
+          ? JSON.stringify(fetchOptions.body)
+          : fetchOptions.body,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const error = new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        // @ts-ignore - cause is a valid property in newer TypeScript versions
+        error.cause = errorData;
+        throw error;
+      }
+
+      // Only try to parse as JSON if there's content
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        return await response.json();
+      }
+      
+      // For non-JSON responses, return a success response
+      return { success: true } as ApiResponse<T>;
     } catch (error) {
-      // Mock API simulation for development
-      return this.simulateApiCall<T>(endpoint, options);
+      console.error('API request failed:', error);
+      let errorMessage = 'An unknown error occurred';
+      
+      if (error instanceof TypeError) {
+        if (error.message === 'Failed to fetch') {
+          errorMessage = 'Unable to connect to the server. Please check your internet connection or try again later.';
+        } else {
+          errorMessage = error.message;
+        }
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      return {
+        success: false,
+        message: errorMessage,
+        errorCode: 'NETWORK_ERROR',
+      } as ApiResponse<T>;
     }
   }
 
-  private async simulateApiCall<T>(endpoint: string, options: RequestInit): Promise<ApiResponse<T>> {
+  private async simulateApiCall<T>(
+    endpoint: string, 
+    options: RequestInit,
+    params?: Record<string, any>
+  ): Promise<ApiResponse<T>> {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
 
@@ -73,13 +140,15 @@ class ApiService {
     }
 
     if (endpoint === '/auth/verify-otp' && method === 'POST') {
-      if (body.otp === '123456') {
+      // For demo purposes, accept any OTP that's 6 digits
+      if (/^\d{6}$/.test(body.otp)) {
+        const isOwner = body.phone.includes('owner') || body.phone === '1234567890';
         const mockUser = {
-          id: body.phone.includes('owner') ? 1 : 2,
-          phone: body.phone,
-          email: body.phone.includes('owner') ? 'owner@gym.com' : 'member@gym.com',
-          name: body.phone.includes('owner') ? 'Gym Owner' : 'John Member',
-          role: body.phone.includes('owner') ? 'OWNER' : 'MEMBER',
+          id: isOwner ? 1 : 2,
+          phone: body.phone.replace('+owner', ''), // Clean up the phone number
+          email: isOwner ? 'owner@gym.com' : 'member@gym.com',
+          name: isOwner ? 'Gym Owner' : 'John Member',
+          role: isOwner ? 'OWNER' : 'MEMBER',
           isVerified: true,
           createdAt: new Date().toISOString()
         };
@@ -96,7 +165,11 @@ class ApiService {
           } as T
         };
       } else {
-        throw new Error('Invalid OTP');
+        return {
+          success: false,
+          message: 'Invalid OTP. Please try again.',
+          errorCode: 'INVALID_OTP'
+        } as ApiResponse<T>;
       }
     }
 
@@ -370,6 +443,132 @@ class ApiService {
       };
     }
 
+    // Expense endpoints
+    if (endpoint === '/expenses' && method === 'GET') {
+      const mockExpenses = [
+        {
+          id: '1',
+          date: new Date().toISOString(),
+          category: 'EQUIPMENT',
+          amount: 15000,
+          description: 'New treadmill',
+          paymentMethod: 'CARD',
+          paidById: '1',
+          paidByName: 'John Doe',
+          receiptUrl: '',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        {
+          id: '2',
+          date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+          category: 'RENT',
+          amount: 50000,
+          description: 'Monthly rent',
+          paymentMethod: 'BANK_TRANSFER',
+          paidById: '1',
+          paidByName: 'John Doe',
+          receiptUrl: '',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ];
+
+      // Apply filters
+      let filteredExpenses = [...mockExpenses];
+      const { startDate, endDate, category, search } = params || {};
+
+      if (startDate) {
+        filteredExpenses = filteredExpenses.filter(
+          exp => new Date(exp.date) >= new Date(startDate)
+        );
+      }
+
+      if (endDate) {
+        filteredExpenses = filteredExpenses.filter(
+          exp => new Date(exp.date) <= new Date(endDate)
+        );
+      }
+
+      if (category) {
+        filteredExpenses = filteredExpenses.filter(
+          exp => exp.category === category
+        );
+      }
+
+      if (search) {
+        const searchLower = search.toLowerCase();
+        filteredExpenses = filteredExpenses.filter(
+          exp => exp.description.toLowerCase().includes(searchLower)
+        );
+      }
+
+      return {
+        success: true,
+        data: filteredExpenses as T
+      };
+    }
+
+    if (endpoint.startsWith('/expenses/') && method === 'GET') {
+      const id = endpoint.split('/').pop();
+      const mockExpense = {
+        id,
+        date: new Date().toISOString(),
+        category: 'EQUIPMENT',
+        amount: 15000,
+        description: 'New treadmill',
+        paymentMethod: 'CARD',
+        paidById: '1',
+        paidByName: 'John Doe',
+        receiptUrl: '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      return {
+        success: true,
+        data: mockExpense as T
+      };
+    }
+
+    if (endpoint === '/expenses' && method === 'POST') {
+      const newExpense = {
+        id: Date.now().toString(),
+        ...body,
+        paidByName: 'John Doe', // In a real app, this would come from the current user
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      return {
+        success: true,
+        message: 'Expense created successfully',
+        data: newExpense as T
+      };
+    }
+
+    if (endpoint.startsWith('/expenses/') && method === 'PUT') {
+      const id = endpoint.split('/').pop();
+      const updatedExpense = {
+        id,
+        ...body,
+        updatedAt: new Date().toISOString(),
+      };
+
+      return {
+        success: true,
+        message: 'Expense updated successfully',
+        data: updatedExpense as T
+      };
+    }
+
+    if (endpoint.startsWith('/expenses/') && method === 'DELETE') {
+      return {
+        success: true,
+        message: 'Expense deleted successfully'
+      } as ApiResponse<T>;
+    }
+
     // Default fallback
     return {
       success: true,
@@ -379,17 +578,59 @@ class ApiService {
 
   // Authentication methods
   async sendOTP(phone: string, type: 'LOGIN' | 'SIGNUP' | 'RESET' = 'LOGIN') {
-    return this.makeRequest<{phone: string, expiresIn: number, type: string}>('/auth/send-otp', {
-      method: 'POST',
-      body: JSON.stringify({ phone, type })
-    });
+    // Use mock API for demo purposes
+    try {
+      const response = await this.simulateApiCall<{phone: string, expiresIn: number, type: string}>('/auth/send-otp', {
+        method: 'POST',
+        body: JSON.stringify({ phone, type })
+      });
+      
+      // For demo purposes, we'll always return success for any valid phone number
+      if (phone && phone.length > 0) {
+        return {
+          success: true,
+          message: 'OTP sent successfully',
+          data: {
+            phone,
+            expiresIn: 300, // 5 minutes
+            type
+          }
+        };
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('Failed to send OTP:', error);
+      return {
+        success: false,
+        message: 'Failed to send OTP. Please try again.',
+        errorCode: 'SEND_OTP_FAILED'
+      };
+    }
   }
 
   async verifyOTP(phone: string, otp: string, type: 'LOGIN' = 'LOGIN') {
-    return this.makeRequest<{token: string, user: any}>('/auth/verify-otp', {
-      method: 'POST',
-      body: JSON.stringify({ phone, otp, type })
-    });
+    // Use mock API for demo purposes
+    try {
+      const response = await this.simulateApiCall<{token: string, user: any}>('/auth/verify-otp', {
+        method: 'POST',
+        body: JSON.stringify({ phone, otp, type })
+      });
+      
+      // If verification is successful, store the token
+      if (response.success && response.data?.token) {
+        localStorage.setItem('authToken', response.data.token);
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('OTP verification failed:', error);
+      return {
+        success: false,
+        message: 'Failed to verify OTP',
+        errorCode: 'VERIFICATION_FAILED'
+      };
+    }
   }
 
   async login(phone: string, otp: string) {
@@ -528,6 +769,94 @@ class ApiService {
 
   async getAttendanceStats(gymId: number, startDate: string, endDate: string) {
     return this.makeRequest<any>(`/gyms/${gymId}/attendance-stats?startDate=${startDate}&endDate=${endDate}`);
+  }
+
+  // Expense Methods
+  async getExpenses(params: { 
+    startDate?: string; 
+    endDate?: string; 
+    category?: string; 
+    search?: string 
+  } = {}): Promise<ApiResponse<any[]>> {
+    return this.makeRequest<any[]>('/expenses', {
+      method: 'GET',
+      params,
+    });
+  }
+
+  async getExpense(id: string): Promise<ApiResponse<any>> {
+    return this.makeRequest<any>(`/expenses/${id}`, {
+      method: 'GET',
+    });
+  }
+
+  async createExpense(data: FormData): Promise<ApiResponse<any>> {
+    return this.makeRequest<any>('/expenses', {
+      method: 'POST',
+      body: data,
+      headers: {
+        // Let the browser set the Content-Type with boundary for FormData
+        ...(data instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
+      },
+    });
+  }
+
+  async updateExpense(id: string, data: FormData): Promise<ApiResponse<any>> {
+    return this.makeRequest<any>(`/expenses/${id}`, {
+      method: 'PUT',
+      body: data,
+      headers: {
+        // Let the browser set the Content-Type with boundary for FormData
+        ...(data instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
+      },
+    });
+  }
+
+  async deleteExpense(id: string): Promise<ApiResponse<void>> {
+    return this.makeRequest<void>(`/expenses/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Trainer methods
+  async getTrainers(params: { status?: string; search?: string } = {}): Promise<ApiResponse<Trainer[]>> {
+    return this.makeRequest<Trainer[]>('/trainers', {
+      method: 'GET',
+      params,
+    });
+  }
+
+  async getTrainer(id: string): Promise<ApiResponse<Trainer>> {
+    return this.makeRequest<Trainer>(`/trainers/${id}`, {
+      method: 'GET'
+    });
+  }
+
+  async createTrainer(trainerData: TrainerFormData): Promise<ApiResponse<Trainer>> {
+    return this.makeRequest<Trainer>('/trainers', {
+      method: 'POST',
+      body: JSON.stringify(trainerData)
+    });
+  }
+
+  async updateTrainer(id: string, updates: Partial<TrainerFormData>): Promise<ApiResponse<Trainer>> {
+    return this.makeRequest<Trainer>(`/trainers/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updates)
+    });
+  }
+
+  async deleteTrainer(id: string): Promise<ApiResponse<void>> {
+    return this.makeRequest<void>(`/trainers/${id}`, {
+      method: 'DELETE'
+    });
+  }
+
+  async toggleTrainerStatus(id: string, status: string): Promise<ApiResponse<Trainer>> {
+    return this.makeRequest<Trainer>(`/trainers/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status })
+    });
   }
 }
 
