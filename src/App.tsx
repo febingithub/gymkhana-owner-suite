@@ -18,6 +18,7 @@ import Attendance from "./pages/Attendance";
 import Reviews from "./pages/Reviews";
 import Settings from "./pages/Settings";
 import AddMember from "./pages/AddMember";
+import Members from "./pages/Members";
 import DashboardLayout from "./components/DashboardLayout";
 import MemberLayout from "./components/MemberLayout";
 import NotFound from "./pages/NotFound";
@@ -53,6 +54,8 @@ const App = () => (
             }>
               <Route index element={<Dashboard />} />
               <Route path="gym-profile" element={<GymProfile />} />
+              <Route path="members" element={<Members />} />
+              <Route path="members/add" element={<AddMember />} />
               <Route path="add-member" element={<AddMember />} />
               <Route path="member-requests" element={<MemberRequests />} />
               <Route path="attendance" element={<Attendance />} />
