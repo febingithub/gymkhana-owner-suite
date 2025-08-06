@@ -1,0 +1,23 @@
+.scrollContainer {
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.scrollContainer::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollContainer::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.scrollContainer::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.scrollContainer::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

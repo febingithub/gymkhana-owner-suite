@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { UserPlus, Check, X, Mail, Phone, Calendar, User } from 'lucide-react';
+import styles from '@/styles/scrollbar.module.css';
 
 interface MemberRequest {
   id: string;
@@ -77,6 +78,61 @@ const MemberRequests = () => {
       membershipType: 'Premium',
       status: 'pending',
       notes: 'Previous gym experience'
+    },
+    {
+      id: '6',
+      name: 'Jessica Lee',
+      email: 'jessica.lee@email.com',
+      phone: '+1 (555) 678-9012',
+      age: 27,
+      joinDate: '2024-01-10',
+      membershipType: 'Standard',
+      status: 'pending',
+      notes: 'Yoga enthusiast'
+    },
+    {
+      id: '7',
+      name: 'Michael Brown',
+      email: 'michael.brown@email.com',
+      phone: '+1 (555) 789-0123',
+      age: 31,
+      joinDate: '2024-01-09',
+      membershipType: 'Premium',
+      status: 'pending',
+      notes: 'Weight training focus'
+    },
+    {
+      id: '8',
+      name: 'Sarah Johnson',
+      email: 'sarah.johnson@email.com',
+      phone: '+1 (555) 890-1234',
+      age: 24,
+      joinDate: '2024-01-08',
+      membershipType: 'Basic',
+      status: 'pending',
+      notes: 'Student discount requested'
+    },
+    {
+      id: '9',
+      name: 'David Kim',
+      email: 'david.kim@email.com',
+      phone: '+1 (555) 901-2345',
+      age: 29,
+      joinDate: '2024-01-07',
+      membershipType: 'Premium',
+      status: 'pending',
+      notes: 'Personal training interested'
+    },
+    {
+      id: '10',
+      name: 'Olivia Wilson',
+      email: 'olivia.wilson@email.com',
+      phone: '+1 (555) 012-3456',
+      age: 33,
+      joinDate: '2024-01-06',
+      membershipType: 'Standard',
+      status: 'pending',
+      notes: 'Early morning workouts'
     }
   ]);
 
@@ -164,9 +220,9 @@ const MemberRequests = () => {
               <p className="text-muted-foreground">No pending requests</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className={`space-y-4 ${pendingRequests.length > 3 ? styles.scrollContainer : ''}`}>
               {pendingRequests.map((request) => (
-                <div key={request.id} className="border rounded-lg p-4 hover:bg-muted/30 transition-colors">
+                <div key={request.id} className="border rounded-lg p-4 hover:bg-muted/30 transition-colors mr-1">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-4">
                       <Avatar className="h-12 w-12">
